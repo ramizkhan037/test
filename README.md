@@ -43,6 +43,11 @@ EOF
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
+POD=$(kubectl -n db get pods -l app.kubernetes.io/component=primary -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -n db $POD -- \
+  mysql -uroot -pmy-secret-root-pw \
+  -e "SHOW SLAVE HOSTS\G"
+
 helm install mysql-cluster bitnami/mysql \
   --namespace db \
   -f ~/mysql-values.yaml
